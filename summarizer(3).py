@@ -3,14 +3,12 @@ from spacy.lang.en.stop_words import STOP_WORDS
 import streamlit as st
 import random
 
-# Load English tokenizer, tagger, parser, NER, and word vectors
 nlp = spacy.load('en_core_web_sm')
 
 def summarize_text(text, num_summaries=3, num_sentences=3):
-    # Process the text with spaCy
+    
     doc = nlp(text)
     
-    # Calculate word frequencies excluding stop words
     word_freq = {}
     for word in doc:
         if word.text.lower() not in STOP_WORDS:
@@ -19,7 +17,6 @@ def summarize_text(text, num_summaries=3, num_sentences=3):
             else:
                 word_freq[word.text.lower()] += 1
     
-    # Calculate sentence scores based on word frequencies
     sentence_scores = {}
     for sent in doc.sents:
         score = 0
@@ -28,13 +25,10 @@ def summarize_text(text, num_summaries=3, num_sentences=3):
                 score += word_freq[word.text.lower()]
         sentence_scores[sent] = score
     
-    # Select top sentences based on scores
     sorted_sentences = sorted(sentence_scores, key=sentence_scores.get, reverse=True)
     
-    # Generate multiple summaries
     summaries = []
     for _ in range(num_summaries):
-        # Select random sentences for each summary to ensure diversity
         selected_sentences = random.sample(sorted_sentences, num_sentences)
         summary = ' '.join([sent.text for sent in selected_sentences])
         summaries.append(summary)
@@ -42,7 +36,6 @@ def summarize_text(text, num_summaries=3, num_sentences=3):
     return summaries
 
 def main():
-    # Set page title and header with colors
     st.title("Text Summarizer")
     st.markdown(
         """
@@ -66,11 +59,9 @@ def main():
         """,
         unsafe_allow_html=True
     )
-    
-    # Header for input section
+
     st.markdown("<h2 class='subheader'>Enter your text below:</h2>", unsafe_allow_html=True)
     
-    # Input text area with custom styling
     text = st.text_area("Input text", height=200, key='input_textarea')
     st.markdown(
         """
@@ -85,18 +76,16 @@ def main():
         """,
         unsafe_allow_html=True
     )
-    
-    # Summarize button
     if st.button("Summarize"):
-        if text.strip():  # Check if input text is not empty
-            num_summaries = 3  # Number of summaries to generate
+        if text.strip():  
+            num_summaries = 3  
             summaries = summarize_text(text, num_summaries)
             st.markdown("---")
             st.markdown("<h2 class='subheader'>Summarized Texts:</h2>", unsafe_allow_html=True)
             for idx, summary in enumerate(summaries):
                 st.markdown(f"<div style='background-color:#dc0017; padding:10px; border-radius:10px;'>Summary {idx + 1}: {summary}</div>", unsafe_allow_html=True)
         else:
-            st.warning("Please enter some text to summarize.")  # Warn if no text entered
+            st.warning("Please enter some text to summarize.")  
 
 if __name__ == "__main__":
     main()
